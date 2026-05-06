@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -45,7 +46,7 @@ public class MemberPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(buildFormPanel(), BorderLayout.EAST);
 
-        loadMembers();
+        loadMembersAsync();
     }
 
     private JPanel buildFormPanel() {
@@ -72,9 +73,26 @@ public class MemberPanel extends JPanel {
         return form;
     }
 
-    private void loadMembers() {
+    private void loadMembersAsync() {
+        new SwingWorker<List<Member>, Void>() {
+            @Override
+            protected List<Member> doInBackground() {
+                return memberDAO.getAll();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    updateTable(get());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(MemberPanel.this, "Failed to load members.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private void updateTable(List<Member> members) {
         tableModel.setRowCount(0);
-        List<Member> members = memberDAO.getAll();
         for (Member member : members) {
             tableModel.addRow(new Object[]{
                 member.getId(),
@@ -96,7 +114,7 @@ public class MemberPanel extends JPanel {
         );
         if (memberDAO.insert(member)) {
             clearForm();
-            loadMembers();
+            loadMembersAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to add member.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -120,7 +138,7 @@ public class MemberPanel extends JPanel {
         );
         if (memberDAO.update(member)) {
             clearForm();
-            loadMembers();
+            loadMembersAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to update member.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -139,7 +157,7 @@ public class MemberPanel extends JPanel {
         }
         if (memberDAO.delete(id)) {
             clearForm();
-            loadMembers();
+            loadMembersAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to delete member.", "Error", JOptionPane.ERROR_MESSAGE);
         }

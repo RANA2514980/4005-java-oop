@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -26,6 +27,7 @@ public class BookPanel extends JPanel {
     private final JTextField titleField = new JTextField();
     private final JTextField authorField = new JTextField();
     private final JTextField categoryField = new JTextField();
+    private final JTextField searchField = new JTextField();
     private final JComboBox<String> statusBox = new JComboBox<>(new String[]{"Available", "Borrowed"});
 
     public BookPanel() {
@@ -42,10 +44,30 @@ public class BookPanel extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(event -> populateFormFromSelection());
 
+        add(buildSearchPanel(), BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(buildFormPanel(), BorderLayout.EAST);
 
-        loadBooks();
+        loadBooksAsync(null);
+    }
+
+    private JPanel buildSearchPanel() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        panel.add(new JLabel("Search (Title or Author)"), BorderLayout.WEST);
+        panel.add(searchField, BorderLayout.CENTER);
+        JPanel actions = new JPanel(new GridLayout(1, 0, 6, 6));
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(event -> searchBooks());
+        JButton resetButton = new JButton("Reset");
+        resetButton.addActionListener(event -> {
+            searchField.setText("");
+            loadBooksAsync(null);
+        });
+        actions.add(searchButton);
+        actions.add(resetButton);
+        panel.add(actions, BorderLayout.EAST);
+        return panel;
     }
 
     private JPanel buildFormPanel() {
@@ -74,9 +96,29 @@ public class BookPanel extends JPanel {
         return form;
     }
 
-    private void loadBooks() {
+    private void loadBooksAsync(String query) {
+        new SwingWorker<List<Book>, Void>() {
+            @Override
+            protected List<Book> doInBackground() {
+                if (query == null || query.isBlank()) {
+                    return bookDAO.getAll();
+                }
+                return bookDAO.searchByTitleOrAuthor(query.trim());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    updateTable(get());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(BookPanel.this, "Failed to load books.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private void updateTable(List<Book> books) {
         tableModel.setRowCount(0);
-        List<Book> books = bookDAO.getAll();
         for (Book book : books) {
             tableModel.addRow(new Object[]{
                 book.getId(),
@@ -86,6 +128,10 @@ public class BookPanel extends JPanel {
                 book.getStatus()
             });
         }
+    }
+
+    private void searchBooks() {
+        loadBooksAsync(searchField.getText());
     }
 
     private void addBook() {
@@ -100,7 +146,7 @@ public class BookPanel extends JPanel {
         );
         if (bookDAO.insert(book)) {
             clearForm();
-            loadBooks();
+            loadBooksAsync(searchField.getText());
         } else {
             JOptionPane.showMessageDialog(this, "Failed to add book.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -125,7 +171,7 @@ public class BookPanel extends JPanel {
         );
         if (bookDAO.update(book)) {
             clearForm();
-            loadBooks();
+            loadBooksAsync(searchField.getText());
         } else {
             JOptionPane.showMessageDialog(this, "Failed to update book.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -144,7 +190,7 @@ public class BookPanel extends JPanel {
         }
         if (bookDAO.delete(id)) {
             clearForm();
-            loadBooks();
+            loadBooksAsync(searchField.getText());
         } else {
             JOptionPane.showMessageDialog(this, "Failed to delete book.", "Error", JOptionPane.ERROR_MESSAGE);
         }

@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -51,7 +52,7 @@ public class BorrowPanel extends JPanel {
         add(buildFormPanel(), BorderLayout.EAST);
 
         borrowDateField.setText(LocalDate.now().toString());
-        loadBorrowRecords();
+        loadBorrowRecordsAsync();
     }
 
     private JPanel buildFormPanel() {
@@ -80,9 +81,26 @@ public class BorrowPanel extends JPanel {
         return form;
     }
 
-    private void loadBorrowRecords() {
+    private void loadBorrowRecordsAsync() {
+        new SwingWorker<List<BorrowRecord>, Void>() {
+            @Override
+            protected List<BorrowRecord> doInBackground() {
+                return borrowRecordDAO.getAll();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    updateTable(get());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(BorrowPanel.this, "Failed to load borrow records.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }.execute();
+    }
+
+    private void updateTable(List<BorrowRecord> records) {
         tableModel.setRowCount(0);
-        List<BorrowRecord> records = borrowRecordDAO.getAll();
         for (BorrowRecord record : records) {
             tableModel.addRow(new Object[]{
                 record.getId(),
@@ -119,7 +137,7 @@ public class BorrowPanel extends JPanel {
             book.setStatus("Borrowed");
             bookDAO.update(book);
             clearForm();
-            loadBorrowRecords();
+            loadBorrowRecordsAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to issue book.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -156,7 +174,7 @@ public class BorrowPanel extends JPanel {
                 bookDAO.update(book);
             });
             clearForm();
-            loadBorrowRecords();
+            loadBorrowRecordsAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to return book.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -175,7 +193,7 @@ public class BorrowPanel extends JPanel {
         }
         if (borrowRecordDAO.delete(id)) {
             clearForm();
-            loadBorrowRecords();
+            loadBorrowRecordsAsync();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to delete record.", "Error", JOptionPane.ERROR_MESSAGE);
         }
