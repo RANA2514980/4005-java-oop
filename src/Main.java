@@ -4,9 +4,7 @@ public class Main {
 
         try {
             dao.DatabaseInitializer.initialize();
-            try (var connection = dao.DatabaseConnection.getInstance().getConnection()) {
-                System.out.println("Database connection OK: " + (connection != null));
-            }
+            javax.swing.SwingUtilities.invokeLater(() -> new views.MainDashboard().setVisible(true));
         } catch (Exception e) {
             System.err.println("Database connection failed: " + e.getMessage());
         }
