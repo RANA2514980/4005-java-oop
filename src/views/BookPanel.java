@@ -17,6 +17,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -41,6 +42,9 @@ public class BookPanel extends JPanel {
             }
         };
         table = new JTable(tableModel);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 18));
+        table.setRowHeight(28);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(event -> populateFormFromSelection());
 
@@ -54,12 +58,18 @@ public class BookPanel extends JPanel {
     private JPanel buildSearchPanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        panel.add(new JLabel("Search (Title or Author)"), BorderLayout.WEST);
+        JLabel searchLabel = new JLabel("Search (Title or Author)");
+        searchLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        panel.add(searchLabel, BorderLayout.WEST);
+        searchField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searchField.setPreferredSize(new Dimension(0, 36));
         panel.add(searchField, BorderLayout.CENTER);
         JPanel actions = new JPanel(new GridLayout(1, 0, 6, 6));
         JButton searchButton = new JButton("Search");
+        searchButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         searchButton.addActionListener(event -> searchBooks());
         JButton resetButton = new JButton("Reset");
+        resetButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         resetButton.addActionListener(event -> {
             searchField.setText("");
             loadBooksAsync(null);
@@ -72,28 +82,41 @@ public class BookPanel extends JPanel {
 
     private JPanel buildFormPanel() {
         JPanel form = new JPanel(new GridLayout(0, 1, 8, 8));
-        form.setPreferredSize(new Dimension(260, 10));
+        form.setPreferredSize(new Dimension(280, 10));
 
-        form.add(new JLabel("Title"));
-        form.add(titleField);
-        form.add(new JLabel("Author"));
-        form.add(authorField);
-        form.add(new JLabel("Category"));
-        form.add(categoryField);
-        form.add(new JLabel("Status"));
+        addFormRow(form, "Title", titleField);
+        addFormRow(form, "Author", authorField);
+        addFormRow(form, "Category", categoryField);
+        JLabel statusLabel = new JLabel("Status");
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        form.add(statusLabel);
+        statusBox.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        statusBox.setPreferredSize(new Dimension(0, 36));
         form.add(statusBox);
 
         JButton addButton = new JButton("Add");
+        addButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addButton.addActionListener(event -> addBook());
         JButton updateButton = new JButton("Update");
+        updateButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         updateButton.addActionListener(event -> updateBook());
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         deleteButton.addActionListener(event -> deleteBook());
 
         form.add(addButton);
         form.add(updateButton);
         form.add(deleteButton);
         return form;
+    }
+
+    private void addFormRow(JPanel form, String labelText, JTextField field) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        form.add(label);
+        field.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        field.setPreferredSize(new Dimension(0, 36));
+        form.add(field);
     }
 
     private void loadBooksAsync(String query) {

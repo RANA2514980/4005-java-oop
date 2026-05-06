@@ -41,7 +41,7 @@ public class MainDashboard extends JFrame {
 
         JLabel title = new JLabel("Library", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setFont(new Font("SansSerif", Font.BOLD, 32));
         title.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
         sidebar.add(title, BorderLayout.NORTH);
 
@@ -61,7 +61,7 @@ public class MainDashboard extends JFrame {
     private JButton createNavButton(String label, String cardName) {
         JButton button = new JButton(label);
         button.setFocusPainted(false);
-        button.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        button.setFont(new Font("SansSerif", Font.PLAIN, 22));
         button.addActionListener(event -> cardLayout.show(contentPanel, cardName));
         return button;
     }
@@ -69,7 +69,7 @@ public class MainDashboard extends JFrame {
     private JPanel createPlaceholder(String text) {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        label.setFont(new Font("SansSerif", Font.PLAIN, 28));
         panel.add(label, BorderLayout.CENTER);
         return panel;
     }

@@ -19,6 +19,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.util.List;
@@ -45,6 +46,9 @@ public class BorrowPanel extends JPanel {
             }
         };
         table = new JTable(tableModel);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 18));
+        table.setRowHeight(28);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(event -> populateFormFromSelection());
 
@@ -57,28 +61,36 @@ public class BorrowPanel extends JPanel {
 
     private JPanel buildFormPanel() {
         JPanel form = new JPanel(new GridLayout(0, 1, 8, 8));
-        form.setPreferredSize(new Dimension(260, 10));
+        form.setPreferredSize(new Dimension(320, 10));
 
-        form.add(new JLabel("Book ID"));
-        form.add(bookIdField);
-        form.add(new JLabel("Member ID"));
-        form.add(memberIdField);
-        form.add(new JLabel("Borrow Date (YYYY-MM-DD)"));
-        form.add(borrowDateField);
-        form.add(new JLabel("Return Date (YYYY-MM-DD)"));
-        form.add(returnDateField);
+        addFormRow(form, "Book ID", bookIdField);
+        addFormRow(form, "Member ID", memberIdField);
+        addFormRow(form, "Borrow Date (YYYY-MM-DD)", borrowDateField);
+        addFormRow(form, "Return Date (YYYY-MM-DD)", returnDateField);
 
         JButton issueButton = new JButton("Issue Book");
+        issueButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         issueButton.addActionListener(event -> issueBook());
         JButton returnButton = new JButton("Return Book");
+        returnButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         returnButton.addActionListener(event -> returnBook());
         JButton deleteButton = new JButton("Delete Record");
+        deleteButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         deleteButton.addActionListener(event -> deleteRecord());
 
         form.add(issueButton);
         form.add(returnButton);
         form.add(deleteButton);
         return form;
+    }
+
+    private void addFormRow(JPanel form, String labelText, JTextField field) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        form.add(label);
+        field.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        field.setPreferredSize(new Dimension(0, 36));
+        form.add(field);
     }
 
     private void loadBorrowRecordsAsync() {

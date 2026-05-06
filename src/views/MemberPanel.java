@@ -18,6 +18,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -40,6 +41,9 @@ public class MemberPanel extends JPanel {
             }
         };
         table = new JTable(tableModel);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 18));
+        table.setRowHeight(28);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(event -> populateFormFromSelection());
 
@@ -51,26 +55,40 @@ public class MemberPanel extends JPanel {
 
     private JPanel buildFormPanel() {
         JPanel form = new JPanel(new GridLayout(0, 1, 8, 8));
-        form.setPreferredSize(new Dimension(260, 10));
+        form.setPreferredSize(new Dimension(280, 10));
 
-        form.add(new JLabel("Name"));
-        form.add(nameField);
-        form.add(new JLabel("Email"));
-        form.add(emailField);
-        form.add(new JLabel("Type"));
+        addFormRow(form, "Name", nameField);
+        addFormRow(form, "Email", emailField);
+        JLabel typeLabel = new JLabel("Type");
+        typeLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        form.add(typeLabel);
+        typeBox.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        typeBox.setPreferredSize(new Dimension(0, 36));
         form.add(typeBox);
 
         JButton addButton = new JButton("Add");
+        addButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addButton.addActionListener(event -> addMember());
         JButton updateButton = new JButton("Update");
+        updateButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         updateButton.addActionListener(event -> updateMember());
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setFont(new Font("SansSerif", Font.PLAIN, 18));
         deleteButton.addActionListener(event -> deleteMember());
 
         form.add(addButton);
         form.add(updateButton);
         form.add(deleteButton);
         return form;
+    }
+
+    private void addFormRow(JPanel form, String labelText, JTextField field) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        form.add(label);
+        field.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        field.setPreferredSize(new Dimension(0, 36));
+        form.add(field);
     }
 
     private void loadMembersAsync() {
