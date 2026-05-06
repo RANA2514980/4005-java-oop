@@ -26,7 +26,7 @@ public class MainDashboard extends JFrame {
         add(sidebar, BorderLayout.WEST);
 
         contentPanel.add(new BookPanel(), "BOOKS");
-        contentPanel.add(createPlaceholder("Members module"), "MEMBERS");
+        contentPanel.add(new MemberPanel(), "MEMBERS");
         contentPanel.add(createPlaceholder("Borrowing module"), "BORROWING");
         add(contentPanel, BorderLayout.CENTER);
 
